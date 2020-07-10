@@ -177,7 +177,7 @@ char* join_path(char* base, char* path) {
 
 int main(int argc, char **argv) {
 	
-	printf("start");
+	printf("start \n");
 
   	struct arguments arguments = {
 		.admin_key = NULL,
@@ -205,24 +205,20 @@ int main(int argc, char **argv) {
 	};
 	config_t janus_videoroom_config;
 	config_t janus_websockets_config;
-	//config_t janus_http_config;
 	config_t janus_config;
 	argp_parse (&argp, argc, argv, 0, 0, &arguments);
 	
 	char *janus_config_path = join_path(arguments.config_base, "janus.jcfg");
 	char *janus_videoroom_config_path = join_path(arguments.config_base, "janus.plugin.videoroom.jcfg");
 	char *janus_websockets_config_path = join_path(arguments.config_base, "janus.transport.websockets.jcfg");
-	//char *janus_http_config_path = join_path(arguments.config_base, "janus.transport.http.jcfg");
 
 	printf("janus_config_path - %s \n", janus_config_path);
 	printf("janus_videoroom_config_path - %s \n", janus_videoroom_config_path);
 	printf("janus_websockets_config_path - %s \n", janus_websockets_config_path);
-	//printf("janus_http_config_path - %s \n", janus_http_config_path);
 	
 	config_init(&janus_videoroom_config);
 	config_init(&janus_websockets_config);
 	config_init(&janus_config);
-	//config_init(&janus_http_config);
 	
   	config_setting_t *root, *setting;
 	
@@ -235,7 +231,6 @@ int main(int argc, char **argv) {
 			config_error_text(&janus_config)
 		);
 		config_destroy(&janus_config);
-		//config_destroy(&janus_http_config);
 		config_destroy(&janus_websockets_config);
 		config_destroy(&janus_videoroom_config);
 		return EXIT_FAILURE;
@@ -250,7 +245,6 @@ int main(int argc, char **argv) {
 			config_error_text(&janus_videoroom_config)
 		);
 		config_destroy(&janus_config);
-		//config_destroy(&janus_http_config);
 		config_destroy(&janus_websockets_config);
 		config_destroy(&janus_videoroom_config);
 		return EXIT_FAILURE;
@@ -265,28 +259,10 @@ int main(int argc, char **argv) {
 			config_error_text(&janus_websockets_config)
 		);
 		config_destroy(&janus_config);
-		//config_destroy(&janus_http_config);
 		config_destroy(&janus_websockets_config);
 		config_destroy(&janus_videoroom_config);
 		return EXIT_FAILURE;
 	}
-
-	/*
-	if (!config_read_file(&janus_http_config, janus_http_config_path)) {
-		fprintf(
-			stderr, 
-			"%s:%d - %s\n",
-			config_error_file(&janus_http_config), 
-			config_error_line(&janus_http_config),
-			config_error_text(&janus_http_config)
-		);
-		config_destroy(&janus_config);
-		config_destroy(&janus_http_config);
-		config_destroy(&janus_websockets_config);
-		config_destroy(&janus_videoroom_config);
-		return EXIT_FAILURE;
-	}
-	*/
 	
 	if (arguments.log_prefix) {
 		root = config_root_setting(&janus_config);
@@ -380,28 +356,14 @@ int main(int argc, char **argv) {
 		printf("set admin_secret to %s \n", arguments.admin_secret);
 	}
 	
-	/*
-	root = config_root_setting(&janus_http_config);
-	setting = config_setting_get_member(root, "general");
-	if (!setting) {
-		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
-	}
-	config_setting_remove(setting, "http");
-	setting = config_setting_add(setting, "http", CONFIG_TYPE_BOOL);
-	config_setting_set_bool(setting, 0);
-	printf("set http to %d \n", 0);
-	*/
-	
  	if (
 		!config_write_file(&janus_config, janus_config_path) ||
-		//!config_write_file(&janus_http_config, janus_http_config_path) ||
 		!config_write_file(&janus_videoroom_config, janus_videoroom_config_path) ||
 		!config_write_file(&janus_websockets_config, janus_websockets_config_path)
 	) {
 		fprintf(stderr, "Error while writing file.\n");
 		config_destroy(&janus_videoroom_config);
 		config_destroy(&janus_websockets_config);
-		//config_destroy(&janus_http_config);
 		config_destroy(&janus_config);
 		return EXIT_FAILURE;
 	}
@@ -411,12 +373,10 @@ int main(int argc, char **argv) {
 	config_destroy(&janus_videoroom_config);
 	config_destroy(&janus_websockets_config);
 	config_destroy(&janus_config);
-	//config_destroy(&janus_http_config);
 	
 	free(janus_config_path);
 	free(janus_videoroom_config_path);
 	free(janus_websockets_config_path);
-	//free(janus_http_config_path);
 
 	return EXIT_SUCCESS;
 }
