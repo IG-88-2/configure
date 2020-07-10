@@ -214,10 +214,10 @@ int main(int argc, char **argv) {
 	char *janus_websockets_config_path = join_path(arguments.config_base, "janus.transport.websockets.jcfg");
 	char *janus_http_config_path = join_path(arguments.config_base, "janus.transport.http.jcfg");
 
-	printf("janus_config_path - %s", janus_config_path);
-	printf("janus_videoroom_config_path - %s", janus_videoroom_config_path);
-	printf("janus_websockets_config_path - %s", janus_websockets_config_path);
-	printf("janus_http_config_path - %s", janus_http_config_path);
+	printf("janus_config_path - %s \n", janus_config_path);
+	printf("janus_videoroom_config_path - %s \n", janus_videoroom_config_path);
+	printf("janus_websockets_config_path - %s \n", janus_websockets_config_path);
+	printf("janus_http_config_path - %s \n", janus_http_config_path);
 	
 	config_init(&janus_videoroom_config);
 	config_init(&janus_websockets_config);
