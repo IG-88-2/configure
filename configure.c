@@ -17,7 +17,9 @@ struct parameter {
 static struct argp_option options[] = {
 	{ "admin_key", 'q', OPTION_ARG_OPTIONAL, 0 },
 	{ "string_ids", 'w', OPTION_ARG_OPTIONAL, 0 },
+
 	{ "rtp_port_range", 'e', OPTION_ARG_OPTIONAL, 0 },
+
 	{ "server_name", 'r', OPTION_ARG_OPTIONAL, 0 },
 	{ "admin_secret", 't', OPTION_ARG_OPTIONAL, 0 },
 	{ "api_secret", 'y', OPTION_ARG_OPTIONAL, 0 },
@@ -26,12 +28,20 @@ static struct argp_option options[] = {
 	{ "session_timeout", 'o', OPTION_ARG_OPTIONAL, 0 },
 	{ "candidates_timeout", 'p', OPTION_ARG_OPTIONAL, 0 },
 	{ "reclaim_session_timeout", 'a', OPTION_ARG_OPTIONAL, 0 },
+
+
 	{ "debug_level", 's', OPTION_ARG_OPTIONAL, 0 },
+
+
 	{ "log_to_stdout", 'd', OPTION_ARG_OPTIONAL, 0 },
 	{ "log_prefix", 'f', OPTION_ARG_OPTIONAL, 0 },
 	{ "interface", 'g', OPTION_ARG_OPTIONAL, 0 },
+
+
 	{ "stun_server", 'h', OPTION_ARG_OPTIONAL, 0 },
 	{ "stun_port", 'j', OPTION_ARG_OPTIONAL, 0 },
+
+
 	{ "nice_debug", 'k', OPTION_ARG_OPTIONAL, 0 },
 	{ "full_trickle", 'l', OPTION_ARG_OPTIONAL, 0 },
 	{ "nat_1_1_mapping", 'z', OPTION_ARG_OPTIONAL, 0 },
@@ -46,14 +56,12 @@ static struct argp_option options[] = {
 struct arguments {
 	char *config_base;
 	char *admin_key;
-	char *rtp_port_range;
 	char *server_name;
 	char *admin_secret;
 	char *api_secret;
 	char *token_auth_secret;
 	char *log_prefix;
 	char *interface;
-	char *stun_server;
 	char *nat_1_1_mapping;
 	int ws_port;
 	int admin_ws_port;
@@ -61,12 +69,15 @@ struct arguments {
 	int session_timeout;
 	int candidates_timeout;
 	int reclaim_session_timeout;
-	int debug_level;
 	int log_to_stdout;
 	int string_ids;
-	int stun_port;
 	int nice_debug;
 	int full_trickle;
+
+	int debug_level;
+	char *rtp_port_range;
+	char *stun_server;
+	int stun_port;
 };
 
 
@@ -181,14 +192,12 @@ int main(int argc, char **argv) {
 
   	struct arguments arguments = {
 		.admin_key = NULL,
-		.rtp_port_range = NULL,
 		.server_name = NULL,
 		.admin_secret = NULL,
 		.api_secret = NULL,
 		.token_auth_secret = NULL,
 		.log_prefix = NULL,
 		.interface = NULL,
-		.stun_server = NULL,
 		.nat_1_1_mapping = NULL,
 		.ws_port = 0,
 		.admin_ws_port = 0,
@@ -196,12 +205,15 @@ int main(int argc, char **argv) {
 		.session_timeout = 0,
 		.candidates_timeout = 0,
 		.reclaim_session_timeout = 0,
-		.debug_level = 0,
 		.log_to_stdout = 0,
 		.string_ids = 0,
-		.stun_port = 0,
 		.nice_debug = 0,
-		.full_trickle = 0
+		.full_trickle = 0,
+
+		.debug_level = 4,
+		.rtp_port_range = NULL,
+		.stun_server = NULL,
+		.stun_port = 0
 	};
 	config_t janus_videoroom_config;
 	config_t janus_websockets_config;
@@ -354,6 +366,54 @@ int main(int argc, char **argv) {
 		setting = config_setting_add(setting, "admin_secret", CONFIG_TYPE_STRING);
 		config_setting_set_string(setting, arguments.admin_secret);
 		printf("set admin_secret to %s \n", arguments.admin_secret);
+	}
+	
+	if (arguments.debug_level) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "general");
+		if (!setting) {
+			setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "debug_level");
+		setting = config_setting_add(setting, "debug_level", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.debug_level);
+		printf("set debug_level to %d \n", arguments.debug_level);
+	}
+
+	if (arguments.rtp_port_range) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "media");
+		if (!setting) {
+			setting = config_setting_add(root, "media", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "rtp_port_range");
+		setting = config_setting_add(setting, "rtp_port_range", CONFIG_TYPE_STRING);
+		config_setting_set_string(setting, arguments.rtp_port_range);
+		printf("set rtp_port_range to %s \n", arguments.rtp_port_range);
+	}
+
+	if (arguments.stun_server) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "stun_server");
+		setting = config_setting_add(setting, "stun_server", CONFIG_TYPE_STRING);
+		config_setting_set_string(setting, arguments.stun_server);
+		printf("set stun_server to %s \n", arguments.stun_server);
+	}
+
+	if (arguments.stun_port) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "stun_port");
+		setting = config_setting_add(setting, "stun_port", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.stun_port);
+		printf("set stun_port to %d \n", arguments.stun_port);
 	}
 	
  	if (
