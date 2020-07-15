@@ -188,7 +188,7 @@ char* join_path(char* base, char* path) {
 
 int main(int argc, char **argv) {
 	
-	printf("start \n");
+	printf("start - %d arguments \n", argc);
 
   	struct arguments arguments = {
 		.config_base = NULL,
@@ -218,7 +218,7 @@ int main(int argc, char **argv) {
 	config_t janus_videoroom_config;
 	config_t janus_websockets_config;
 	config_t janus_config;
-	argp_parse (&argp, argc, argv, 0, 0, &arguments);
+	argp_parse (&argp, argc + 1, argv, 0, 0, &arguments);
 	
 	char *janus_config_path = join_path(arguments.config_base, "janus.jcfg");
 	char *janus_videoroom_config_path = join_path(arguments.config_base, "janus.plugin.videoroom.jcfg");
