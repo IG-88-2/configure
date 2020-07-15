@@ -191,6 +191,7 @@ int main(int argc, char **argv) {
 	printf("start \n");
 
   	struct arguments arguments = {
+		.config_base = NULL,
 		.admin_key = NULL,
 		.server_name = NULL,
 		.admin_secret = NULL,
@@ -209,7 +210,6 @@ int main(int argc, char **argv) {
 		.string_ids = 0,
 		.nice_debug = 0,
 		.full_trickle = 0,
-
 		.debug_level = 4,
 		.rtp_port_range = NULL,
 		.stun_server = NULL,
