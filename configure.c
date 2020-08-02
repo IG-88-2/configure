@@ -24,7 +24,6 @@ struct arguments {
 	char *log_prefix;
 	char *interface;
 	char *nat_1_1_mapping;
-	char *nat_1_1_mapping;
 
 	char *rtp_port_range;
 	char *ice_ignore_list;
@@ -38,7 +37,6 @@ struct arguments {
 	int log_to_stdout;
 
 	int string_ids;
-	int full_trickle;
 	int debug_level;
 	int stun_port;
 	int nice_debug;
