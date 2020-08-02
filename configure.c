@@ -453,8 +453,8 @@ int main(int argc, char **argv) {
 			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
 		}
 		config_setting_remove(setting, "keep_private_host");
-		setting = config_setting_add(setting, "keep_private_host", CONFIG_TYPE_INT);
-		config_setting_set_int(setting, arguments.keep_private_host);
+		setting = config_setting_add(setting, "keep_private_host", CONFIG_TYPE_BOOL);
+		config_setting_set_bool(setting, arguments.keep_private_host);
 		printf("set keep_private_host to %d \n", arguments.keep_private_host);
 	}
 	
