@@ -14,45 +14,6 @@ struct parameter {
 
 
 
-static struct argp_option options[] = {
-	{ "admin_key", 'q', OPTION_ARG_OPTIONAL, 0 },
-	{ "string_ids", 'w', OPTION_ARG_OPTIONAL, 0 },
-
-	{ "rtp_port_range", 'e', OPTION_ARG_OPTIONAL, 0 },
-
-	{ "server_name", 'r', OPTION_ARG_OPTIONAL, 0 },
-	{ "admin_secret", 't', OPTION_ARG_OPTIONAL, 0 },
-	{ "api_secret", 'y', OPTION_ARG_OPTIONAL, 0 },
-	{ "token_auth", 'u', OPTION_ARG_OPTIONAL, 0 },
-	{ "token_auth_secret", 'i', OPTION_ARG_OPTIONAL, 0 },
-	{ "session_timeout", 'o', OPTION_ARG_OPTIONAL, 0 },
-	{ "candidates_timeout", 'p', OPTION_ARG_OPTIONAL, 0 },
-	{ "reclaim_session_timeout", 'a', OPTION_ARG_OPTIONAL, 0 },
-
-
-	{ "debug_level", 's', OPTION_ARG_OPTIONAL, 0 },
-
-
-	{ "log_to_stdout", 'd', OPTION_ARG_OPTIONAL, 0 },
-	{ "log_prefix", 'f', OPTION_ARG_OPTIONAL, 0 },
-	{ "interface", 'g', OPTION_ARG_OPTIONAL, 0 },
-
-
-	{ "stun_server", 'h', OPTION_ARG_OPTIONAL, 0 },
-	{ "stun_port", 'j', OPTION_ARG_OPTIONAL, 0 },
-
-
-	{ "nice_debug", 'k', OPTION_ARG_OPTIONAL, 0 },
-	{ "full_trickle", 'l', OPTION_ARG_OPTIONAL, 0 },
-	{ "nat_1_1_mapping", 'z', OPTION_ARG_OPTIONAL, 0 },
-	{ "config_base", 'c', OPTION_ARG_OPTIONAL, 0 },
-	{ "ws_port", 'b', OPTION_ARG_OPTIONAL, 0 },
-	{ "admin_ws_port", 'n', OPTION_ARG_OPTIONAL, 0 },
-  	{ 0 }
-};
-
-
-
 struct arguments {
 	char *config_base;
 	char *admin_key;
@@ -63,6 +24,11 @@ struct arguments {
 	char *log_prefix;
 	char *interface;
 	char *nat_1_1_mapping;
+	char *nat_1_1_mapping;
+
+	char *rtp_port_range;
+	char *ice_ignore_list;
+	char *stun_server;
 	int ws_port;
 	int admin_ws_port;
 	int token_auth;
@@ -70,14 +36,51 @@ struct arguments {
 	int candidates_timeout;
 	int reclaim_session_timeout;
 	int log_to_stdout;
-	int string_ids;
-	int nice_debug;
-	int full_trickle;
 
+	int string_ids;
+	int full_trickle;
 	int debug_level;
-	char *rtp_port_range;
-	char *stun_server;
 	int stun_port;
+	int nice_debug;
+	int keep_private_host;
+	int full_trickle;
+	int ice_lite;
+	int ice_tcp;
+
+};
+
+
+
+static struct argp_option options[] = {
+	{ "admin_key", 'q', OPTION_ARG_OPTIONAL, 0 },
+	{ "string_ids", 'w', OPTION_ARG_OPTIONAL, 0 },
+	{ "rtp_port_range", 'e', OPTION_ARG_OPTIONAL, 0 },
+	{ "server_name", 'r', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_secret", 't', OPTION_ARG_OPTIONAL, 0 },
+	{ "api_secret", 'y', OPTION_ARG_OPTIONAL, 0 },
+	{ "token_auth", 'u', OPTION_ARG_OPTIONAL, 0 },
+	{ "token_auth_secret", 'i', OPTION_ARG_OPTIONAL, 0 },
+	{ "session_timeout", 'o', OPTION_ARG_OPTIONAL, 0 },
+	{ "candidates_timeout", 'p', OPTION_ARG_OPTIONAL, 0 },
+
+	{ "reclaim_session_timeout", 'a', OPTION_ARG_OPTIONAL, 0 },
+	{ "debug_level", 's', OPTION_ARG_OPTIONAL, 0 },
+	{ "log_to_stdout", 'd', OPTION_ARG_OPTIONAL, 0 },
+	{ "log_prefix", 'f', OPTION_ARG_OPTIONAL, 0 },
+	{ "interface", 'g', OPTION_ARG_OPTIONAL, 0 },
+	{ "stun_server", 'h', OPTION_ARG_OPTIONAL, 0 },
+	{ "stun_port", 'j', OPTION_ARG_OPTIONAL, 0 },
+	{ "config_base", 'c', OPTION_ARG_OPTIONAL, 0 },
+	{ "ws_port", 'b', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_ws_port", 'n', OPTION_ARG_OPTIONAL, 0 },
+	
+	{ "nat_1_1_mapping", 'k', OPTION_ARG_OPTIONAL, 0 },
+	{ "keep_private_host", 'l', OPTION_ARG_OPTIONAL, 0 },
+	{ "full_trickle", 'z', OPTION_ARG_OPTIONAL, 0 },
+	{ "ice_lite", 'x', OPTION_ARG_OPTIONAL, 0 },
+	{ "ice_tcp", 'v', OPTION_ARG_OPTIONAL, 0 },
+	{ "ice_ignore_list", 'm', OPTION_ARG_OPTIONAL, 0 },
+  	{ 0 }
 };
 
 
@@ -146,14 +149,23 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 		case 'j': 
 			arguments->stun_port = atoi(arg);
 			break;
-		case 'k':
-			arguments->nice_debug = 1;
-			break;
-		case 'l': 
+		case 'z': 
 			arguments->full_trickle = 1;
 			break;
-		case 'z': 
+		case 'k': 
 			arguments->nat_1_1_mapping = arg;
+			break;
+		case 'l': 
+			arguments->keep_private_host = arg;
+			break;
+		case 'x': 
+			arguments->ice_lite = arg;
+			break;
+		case 'v': 
+			arguments->ice_tcp = arg;
+			break;
+		case 'm': 
+			arguments->ice_ignore_list = arg;
 			break;
 		default:
 			return ARGP_ERR_UNKNOWN;
@@ -189,8 +201,8 @@ char* join_path(char* base, char* path) {
 int main(int argc, char **argv) {
 	
 	printf("start - %d arguments \n", argc);
-
-  	struct arguments arguments = {
+	
+	struct arguments arguments = {
 		.config_base = NULL,
 		.admin_key = NULL,
 		.server_name = NULL,
@@ -201,6 +213,7 @@ int main(int argc, char **argv) {
 		.interface = NULL,
 		.nat_1_1_mapping = NULL,
 		.ws_port = 0,
+
 		.admin_ws_port = 0,
 		.token_auth = 0, 
 		.session_timeout = 0,
@@ -208,12 +221,19 @@ int main(int argc, char **argv) {
 		.reclaim_session_timeout = 0,
 		.log_to_stdout = 0,
 		.string_ids = 0,
-		.nice_debug = 0,
 		.full_trickle = 0,
 		.debug_level = 4,
 		.rtp_port_range = NULL,
+
 		.stun_server = NULL,
-		.stun_port = 0
+		.stun_port = 0,
+		.nice_debug = 1,
+		.nat_1_1_mapping = NULL,
+		.keep_private_host = 0,
+		.full_trickle = 0,
+		.ice_lite = 0,
+		.ice_tcp = 0,
+		.ice_ignore_list = NULL
 	};
 	config_t janus_videoroom_config;
 	config_t janus_websockets_config;
@@ -391,7 +411,7 @@ int main(int argc, char **argv) {
 		config_setting_set_string(setting, arguments.rtp_port_range);
 		printf("set rtp_port_range to %s \n", arguments.rtp_port_range);
 	}
-
+	
 	if (arguments.stun_server) {
 		root = config_root_setting(&janus_config);
 		setting = config_setting_get_member(root, "nat");
@@ -416,6 +436,79 @@ int main(int argc, char **argv) {
 		printf("set stun_port to %d \n", arguments.stun_port);
 	}
 	
+	if (arguments.nat_1_1_mapping) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "nat_1_1_mapping");
+		setting = config_setting_add(setting, "nat_1_1_mapping", CONFIG_TYPE_STRING);
+		config_setting_set_string(setting, arguments.nat_1_1_mapping);
+		printf("set nat_1_1_mapping to %s \n", arguments.nat_1_1_mapping);
+	}
+	
+	if (arguments.keep_private_host) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "keep_private_host");
+		setting = config_setting_add(setting, "keep_private_host", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.keep_private_host);
+		printf("set keep_private_host to %d \n", arguments.keep_private_host);
+	}
+	
+	if (arguments.full_trickle) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "full_trickle");
+		setting = config_setting_add(setting, "full_trickle", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.full_trickle);
+		printf("set full_trickle to %d \n", arguments.full_trickle);
+	}
+	
+	if (arguments.ice_lite) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "ice_lite");
+		setting = config_setting_add(setting, "ice_lite", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.ice_lite);
+		printf("set ice_lite to %d \n", arguments.ice_lite);
+	}
+	
+	if (arguments.ice_tcp) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "ice_tcp");
+		setting = config_setting_add(setting, "ice_tcp", CONFIG_TYPE_INT);
+		config_setting_set_int(setting, arguments.ice_tcp);
+		printf("set ice_tcp to %d \n", arguments.ice_tcp);
+	}
+	
+	if (arguments.ice_ignore_list) {
+		//ice_ignore_list = "vmnet,192.168."
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "nat");
+		if (!setting) {
+			setting = config_setting_add(root, "nat", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "ice_ignore_list");
+		setting = config_setting_add(setting, "ice_ignore_list", CONFIG_TYPE_STRING);
+		config_setting_set_string(setting, arguments.ice_ignore_list);
+		printf("set ice_ignore_list to %s \n", arguments.ice_ignore_list);
+	}
+
  	if (
 		!config_write_file(&janus_config, janus_config_path) ||
 		!config_write_file(&janus_videoroom_config, janus_videoroom_config_path) ||
