@@ -366,7 +366,7 @@ int main(int argc, char **argv) {
 	} else {
 		config_setting_set_bool(setting, 0);
 	}
-	printf("set ws to %s \n", arguments.ws);
+	printf("set ws to %d \n", arguments.ws);
 	
 
 
@@ -383,7 +383,7 @@ int main(int argc, char **argv) {
 	} else {
 		config_setting_set_bool(setting, 0);
 	}
-	printf("set wss to %s \n", arguments.wss);
+	printf("set wss to %d \n", arguments.wss);
 
 
 
@@ -400,7 +400,7 @@ int main(int argc, char **argv) {
 	} else {
 		config_setting_set_bool(setting, 0);
 	}
-	printf("set admin_ws to %s \n", arguments.admin_ws);
+	printf("set admin_ws to %d \n", arguments.admin_ws);
 
 
 
@@ -417,9 +417,9 @@ int main(int argc, char **argv) {
 	} else {
 		config_setting_set_bool(setting, 0);
 	}
-	printf("set admin_wss to %s \n", arguments.admin_wss);
+	printf("set admin_wss to %d \n", arguments.admin_wss);
 	
-	
+
 
 	if (arguments.wss_port) {
 		root = config_root_setting(&janus_websockets_config);
