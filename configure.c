@@ -45,11 +45,29 @@ struct arguments {
 	int ice_lite;
 	int ice_tcp;
 
+	int ws;
+	int wss;
+	int wss_port;
+	int admin_ws;
+	int admin_wss;
+	int admin_wss_port;
+	char *cert_pem;
+	char *cert_key;
 };
 
 
 
 static struct argp_option options[] = {
+
+	// { "ws", 335, OPTION_ARG_OPTIONAL, 0 },
+	// { "wss", 336, OPTION_ARG_OPTIONAL, 0 },
+	// { "wss_port", 337, OPTION_ARG_OPTIONAL, 0 },
+	// { "admin_ws", 338, OPTION_ARG_OPTIONAL, 0 },
+	// { "admin_wss", 339, OPTION_ARG_OPTIONAL, 0 },
+	// { "admin_wss_port", 340, OPTION_ARG_OPTIONAL, 0 },
+	// { "cert_pem", 341, OPTION_ARG_OPTIONAL, 0 },
+	// { "cert_key", 342, OPTION_ARG_OPTIONAL, 0 },
+	
 	{ "admin_key", 'q', OPTION_ARG_OPTIONAL, 0 },
 	{ "string_ids", 'w', OPTION_ARG_OPTIONAL, 0 },
 	{ "rtp_port_range", 'e', OPTION_ARG_OPTIONAL, 0 },
@@ -60,7 +78,6 @@ static struct argp_option options[] = {
 	{ "token_auth_secret", 'i', OPTION_ARG_OPTIONAL, 0 },
 	{ "session_timeout", 'o', OPTION_ARG_OPTIONAL, 0 },
 	{ "candidates_timeout", 'p', OPTION_ARG_OPTIONAL, 0 },
-
 	{ "reclaim_session_timeout", 'a', OPTION_ARG_OPTIONAL, 0 },
 	{ "debug_level", 's', OPTION_ARG_OPTIONAL, 0 },
 	{ "log_to_stdout", 'd', OPTION_ARG_OPTIONAL, 0 },
@@ -68,16 +85,25 @@ static struct argp_option options[] = {
 	{ "interface", 'g', OPTION_ARG_OPTIONAL, 0 },
 	{ "stun_server", 'h', OPTION_ARG_OPTIONAL, 0 },
 	{ "stun_port", 'j', OPTION_ARG_OPTIONAL, 0 },
-	{ "config_base", 'c', OPTION_ARG_OPTIONAL, 0 },
-	{ "ws_port", 'b', OPTION_ARG_OPTIONAL, 0 },
-	{ "admin_ws_port", 'n', OPTION_ARG_OPTIONAL, 0 },
-	
 	{ "nat_1_1_mapping", 'k', OPTION_ARG_OPTIONAL, 0 },
 	{ "keep_private_host", 'l', OPTION_ARG_OPTIONAL, 0 },
 	{ "full_trickle", 'z', OPTION_ARG_OPTIONAL, 0 },
 	{ "ice_lite", 'x', OPTION_ARG_OPTIONAL, 0 },
+	{ "config_base", 'c', OPTION_ARG_OPTIONAL, 0 },
 	{ "ice_tcp", 'v', OPTION_ARG_OPTIONAL, 0 },
+	{ "ws_port", 'b', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_ws_port", 'n', OPTION_ARG_OPTIONAL, 0 },
 	{ "ice_ignore_list", 'm', OPTION_ARG_OPTIONAL, 0 },
+
+	{ "ws", 'A', OPTION_ARG_OPTIONAL, 0 },
+	{ "wss", 'B', OPTION_ARG_OPTIONAL, 0 },
+	{ "wss_port", 'C', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_ws", 'D', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_wss", 'E', OPTION_ARG_OPTIONAL, 0 },
+	{ "admin_wss_port", 'F', OPTION_ARG_OPTIONAL, 0 },
+	{ "cert_pem", 'G', OPTION_ARG_OPTIONAL, 0 },
+	{ "cert_key", 'H', OPTION_ARG_OPTIONAL, 0 },
+
   	{ 0 }
 };
 
@@ -87,6 +113,30 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 	struct arguments *arguments = state->input;
 
 	switch (key) {
+		case 'A':
+			arguments->ws = atoi(arg);
+			break;
+		case 'B':
+			arguments->wss = atoi(arg);
+			break;
+		case 'C':
+			arguments->wss_port = atoi(arg);
+			break;
+		case 'D':
+			arguments->admin_ws = atoi(arg);
+			break;
+		case 'E':
+			arguments->admin_wss = atoi(arg);
+			break;
+		case 'F':
+			arguments->admin_wss_port = atoi(arg);
+			break;
+		case 'G':
+			arguments->cert_pem = arg;
+			break;
+		case 'H':
+			arguments->cert_key = arg;
+			break;
 		case 'n':
 			arguments->admin_ws_port = atoi(arg);
 			break;
@@ -201,6 +251,17 @@ int main(int argc, char **argv) {
 	printf("start - %d arguments \n", argc);
 	
 	struct arguments arguments = {
+		.ws = 1,
+		.ws_port = 0,
+		.wss = 0,	
+		.wss_port = 0,
+		.admin_ws = 1,
+		.admin_ws_port = 7188,
+		.admin_wss = 0,
+		.admin_wss_port = 7989,
+		.cert_pem = NULL,
+		.cert_key = NULL,
+
 		.config_base = NULL,
 		.admin_key = NULL,
 		.server_name = NULL,
@@ -210,9 +271,6 @@ int main(int argc, char **argv) {
 		.log_prefix = NULL,
 		.interface = NULL,
 		.nat_1_1_mapping = NULL,
-		.ws_port = 0,
-
-		.admin_ws_port = 0,
 		.token_auth = 0, 
 		.session_timeout = 0,
 		.candidates_timeout = 0,
@@ -222,7 +280,6 @@ int main(int argc, char **argv) {
 		.full_trickle = 0,
 		.debug_level = 4,
 		.rtp_port_range = NULL,
-
 		.stun_server = NULL,
 		.stun_port = 0,
 		.nice_debug = 1,
@@ -236,7 +293,7 @@ int main(int argc, char **argv) {
 	config_t janus_videoroom_config;
 	config_t janus_websockets_config;
 	config_t janus_config;
-	argp_parse (&argp, argc, argv, ARGP_NO_EXIT, 0, &arguments);
+	argp_parse(&argp, argc, argv, ARGP_NO_EXIT, 0, &arguments);
 	
 	char *janus_config_path = join_path(arguments.config_base, "janus.jcfg");
 	char *janus_videoroom_config_path = join_path(arguments.config_base, "janus.plugin.videoroom.jcfg");
@@ -293,6 +350,124 @@ int main(int argc, char **argv) {
 		config_destroy(&janus_videoroom_config);
 		return EXIT_FAILURE;
 	}
+
+
+
+	root = config_root_setting(&janus_config);
+	setting = config_setting_get_member(root, "general");
+	if (!setting) {
+		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+	}
+	config_setting_remove(setting, "ws");
+	setting = config_setting_add(setting, "ws", CONFIG_TYPE_BOOL);
+
+	if (arguments.ws) {
+		config_setting_set_bool(setting, 1);
+	} else {
+		config_setting_set_bool(setting, 0);
+	}
+	printf("set ws to %s \n", arguments.ws);
+	
+
+
+	root = config_root_setting(&janus_config);
+	setting = config_setting_get_member(root, "general");
+	if (!setting) {
+		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+	}
+	config_setting_remove(setting, "wss");
+	setting = config_setting_add(setting, "wss", CONFIG_TYPE_BOOL);
+
+	if (arguments.wss) {
+		config_setting_set_bool(setting, 1);
+	} else {
+		config_setting_set_bool(setting, 0);
+	}
+	printf("set wss to %s \n", arguments.wss);
+
+
+
+	root = config_root_setting(&janus_config);
+	setting = config_setting_get_member(root, "admin");
+	if (!setting) {
+		setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
+	}
+	config_setting_remove(setting, "admin_ws");
+	setting = config_setting_add(setting, "admin_ws", CONFIG_TYPE_BOOL);
+
+	if (arguments.admin_ws) {
+		config_setting_set_bool(setting, 1);
+	} else {
+		config_setting_set_bool(setting, 0);
+	}
+	printf("set admin_ws to %s \n", arguments.admin_ws);
+
+
+
+	root = config_root_setting(&janus_config);
+	setting = config_setting_get_member(root, "admin");
+	if (!setting) {
+		setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
+	}
+	config_setting_remove(setting, "admin_wss");
+	setting = config_setting_add(setting, "admin_wss", CONFIG_TYPE_BOOL);
+
+	if (arguments.admin_wss) {
+		config_setting_set_bool(setting, 1);
+	} else {
+		config_setting_set_bool(setting, 0);
+	}
+	printf("set admin_wss to %s \n", arguments.admin_wss);
+	
+	
+
+	if (arguments.wss_port) {
+		root = config_root_setting(&janus_websockets_config);
+		setting = config_setting_get_member(root, "general");
+		if (!setting) {
+			setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "wss_port");
+		setting = config_setting_add(setting, "wss_port", CONFIG_TYPE_INT);
+  		config_setting_set_int(setting, arguments.wss_port);
+		printf("set wss port to %d \n", arguments.wss_port);
+	}
+	
+	if (arguments.admin_wss_port) {
+		root = config_root_setting(&janus_websockets_config);
+		setting = config_setting_get_member(root, "admin");
+		if (!setting) {
+			setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "admin_wss_port");
+		setting = config_setting_add(setting, "admin_wss_port", CONFIG_TYPE_INT);
+  		config_setting_set_int(setting, arguments.admin_wss_port);
+		printf("set admin wss port to %d \n", arguments.admin_wss_port);
+	}
+	
+	if (arguments.cert_pem) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "certificates");
+		if (!setting) {
+			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "cert_pem");
+		setting = config_setting_add(setting, "cert_pem", CONFIG_TYPE_STRING);
+  		config_setting_set_string(setting, arguments.cert_pem);
+		printf("set cert_pem to %s \n", arguments.cert_pem);
+	}
+
+	if (arguments.cert_key) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "certificates");
+		if (!setting) {
+			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "cert_key");
+		setting = config_setting_add(setting, "cert_key", CONFIG_TYPE_STRING);
+  		config_setting_set_string(setting, arguments.cert_key);
+		printf("set cert_key to %s \n", arguments.cert_key);
+	}
 	
 	if (arguments.log_prefix) {
 		root = config_root_setting(&janus_config);
@@ -312,11 +487,7 @@ int main(int argc, char **argv) {
 		if (!setting) {
 			setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
 		}
-		config_setting_remove(setting, "ws");
 		config_setting_remove(setting, "ws_port");
-		setting = config_setting_add(setting, "ws", CONFIG_TYPE_BOOL);
-		config_setting_set_bool(setting, 1);
-		setting = config_setting_get_member(root, "general");
 		setting = config_setting_add(setting, "ws_port", CONFIG_TYPE_INT);
   		config_setting_set_int(setting, arguments.ws_port);
 		printf("set ws port to %d \n", arguments.ws_port);
@@ -328,11 +499,7 @@ int main(int argc, char **argv) {
 		if (!setting) {
 			setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
 		}
-		config_setting_remove(setting, "admin_ws");
 		config_setting_remove(setting, "admin_ws_port");
-		setting = config_setting_add(setting, "admin_ws", CONFIG_TYPE_BOOL);
-		config_setting_set_bool(setting, 1);
-		setting = config_setting_get_member(root, "admin");
 		setting = config_setting_add(setting, "admin_ws_port", CONFIG_TYPE_INT);
   		config_setting_set_int(setting, arguments.admin_ws_port);
 		printf("set admin ws port to %d \n", arguments.admin_ws_port);
