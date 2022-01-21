@@ -267,6 +267,7 @@ int main(int argc, char **argv) {
 		.server_name = NULL,
 		.admin_secret = NULL,
 		.api_secret = NULL,
+		.api_secret = NULL,
 		.token_auth_secret = NULL,
 		.log_prefix = NULL,
 		.interface = NULL,
@@ -353,7 +354,7 @@ int main(int argc, char **argv) {
 
 
 
-	root = config_root_setting(&janus_config);
+	root = config_root_setting(&janus_websockets_config);
 	setting = config_setting_get_member(root, "general");
 	if (!setting) {
 		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
@@ -370,7 +371,7 @@ int main(int argc, char **argv) {
 	
 
 
-	root = config_root_setting(&janus_config);
+	root = config_root_setting(&janus_websockets_config);
 	setting = config_setting_get_member(root, "general");
 	if (!setting) {
 		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
@@ -387,7 +388,7 @@ int main(int argc, char **argv) {
 
 
 
-	root = config_root_setting(&janus_config);
+	root = config_root_setting(&janus_websockets_config);
 	setting = config_setting_get_member(root, "admin");
 	if (!setting) {
 		setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
@@ -404,7 +405,7 @@ int main(int argc, char **argv) {
 
 
 
-	root = config_root_setting(&janus_config);
+	root = config_root_setting(&janus_websockets_config);
 	setting = config_setting_get_member(root, "admin");
 	if (!setting) {
 		setting = config_setting_add(root, "admin", CONFIG_TYPE_GROUP);
@@ -446,7 +447,7 @@ int main(int argc, char **argv) {
 	}
 	
 	if (arguments.cert_pem) {
-		root = config_root_setting(&janus_config);
+		root = config_root_setting(&janus_websockets_config);
 		setting = config_setting_get_member(root, "certificates");
 		if (!setting) {
 			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
@@ -458,7 +459,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (arguments.cert_key) {
-		root = config_root_setting(&janus_config);
+		root = config_root_setting(&janus_websockets_config);
 		setting = config_setting_get_member(root, "certificates");
 		if (!setting) {
 			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
@@ -467,6 +468,30 @@ int main(int argc, char **argv) {
 		setting = config_setting_add(setting, "cert_key", CONFIG_TYPE_STRING);
   		config_setting_set_string(setting, arguments.cert_key);
 		printf("set cert_key to %s \n", arguments.cert_key);
+	}
+
+	if (arguments.cert_pem) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "certificates");
+		if (!setting) {
+			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "cert_pem");
+		setting = config_setting_add(setting, "cert_pem", CONFIG_TYPE_STRING);
+  		config_setting_set_string(setting, arguments.cert_pem);
+		printf("set janus cert_pem to %s \n", arguments.cert_pem);
+	}
+
+	if (arguments.cert_key) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "certificates");
+		if (!setting) {
+			setting = config_setting_add(root, "certificates", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "cert_key");
+		setting = config_setting_add(setting, "cert_key", CONFIG_TYPE_STRING);
+  		config_setting_set_string(setting, arguments.cert_key);
+		printf("set janus cert_key to %s \n", arguments.cert_key);
 	}
 	
 	if (arguments.log_prefix) {
@@ -539,6 +564,18 @@ int main(int argc, char **argv) {
 		setting = config_setting_add(setting, "server_name", CONFIG_TYPE_STRING);
 		config_setting_set_string(setting, arguments.server_name);
 		printf("set server_name to %s \n", arguments.server_name);
+	}
+	
+	if (arguments.api_secret) {
+		root = config_root_setting(&janus_config);
+		setting = config_setting_get_member(root, "general");
+		if (!setting) {
+			setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+		}
+		config_setting_remove(setting, "api_secret");
+		setting = config_setting_add(setting, "api_secret", CONFIG_TYPE_STRING);
+		config_setting_set_string(setting, arguments.api_secret);
+		printf("set api_secret to %s \n", arguments.api_secret);
 	}
 
 	if (arguments.admin_secret) {
