@@ -602,6 +602,16 @@ int main(int argc, char **argv) {
 		printf("set debug_level to %d \n", arguments.debug_level);
 	}
 
+	root = config_root_setting(&janus_config);
+	setting = config_setting_get_member(root, "general");
+	if (!setting) {
+		setting = config_setting_add(root, "general", CONFIG_TYPE_GROUP);
+	}
+	config_setting_remove(setting, "session_timeout");
+	setting = config_setting_add(setting, "session_timeout", CONFIG_TYPE_INT);
+	config_setting_set_int(setting, 0);
+	printf("set session timeout to %d \n", 0);
+
 	if (arguments.rtp_port_range) {
 		root = config_root_setting(&janus_config);
 		setting = config_setting_get_member(root, "media");
